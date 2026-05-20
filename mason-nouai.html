@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מייסון נואי — ציורי קנבס מקוריים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Heebo:wght@200;300;400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #1a1410;
+    --parchment: #f5f0e8;
+    --warm-white: #faf7f2;
+    --gold: #b8913a;
+    --gold-light: #d4a853;
+    --rust: #8b3a1e;
+    --sage: #6b7c5e;
+    --charcoal: #2d2620;
+    --muted: #7a6e65;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--warm-white);
+    color: var(--ink);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease, width 0.2s, height 0.2s;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+    opacity: 0.6;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+    mix-blend-mode: multiply;
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    color: var(--ink);
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-left {
+    background: var(--ink);
+    display: flex;
+    align-items: flex-end;
+    padding: 5rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-left::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 60%, #3d2010 0%, transparent 60%);
+  }
+  .hero-canvas-preview {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .canvas-art {
+    width: 70%;
+    aspect-ratio: 3/4;
+    position: relative;
+    transform: rotate(-3deg);
+    box-shadow: 30px 40px 80px rgba(0,0,0,0.6);
+  }
+  .canvas-art-inner {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #2d1a0e 0%, #6b3a1f 30%, #c47d3a 55%, #8b5a2b 75%, #1a0d05 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .canvas-art-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 40% 30%, rgba(200,140,60,0.4) 0%, transparent 50%),
+      radial-gradient(circle at 70% 70%, rgba(139,58,30,0.5) 0%, transparent 40%);
+  }
+  .canvas-strokes {
+    position: absolute;
+    inset: 0;
+  }
+  .stroke {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.3;
+    mix-blend-mode: overlay;
+  }
+  .canvas-frame {
+    position: absolute;
+    inset: -8px;
+    border: 8px solid #2a1a0a;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    pointer-events: none;
+  }
+
+  .hero-text {
+    position: relative;
+    z-index: 2;
+    color: var(--parchment);
+  }
+  .hero-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    display: block;
+    animation: fadeUp 1s ease forwards;
+    opacity: 0;
+  }
+  .hero-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 5vw, 5rem);
+    font-weight: 300;
+    line-height: 0.9;
+    margin-bottom: 2rem;
+    animation: fadeUp 1s 0.2s ease forwards;
+    opacity: 0;
+  }
+  .hero-name em {
+    display: block;
+    font-style: italic;
+    color: var(--gold-light);
+  }
+  .hero-tagline {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: rgba(245,240,232,0.6);
+    max-width: 280px;
+    animation: fadeUp 1s 0.4s ease forwards;
+    opacity: 0;
+  }
+
+  .hero-right {
+    background: var(--parchment);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 5rem 5rem;
+    position: relative;
+  }
+  .hero-right::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+    opacity: 0.3;
+  }
+  .hero-intro-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.3rem, 2vw, 1.8rem);
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--charcoal);
+    margin-bottom: 3rem;
+    animation: fadeUp 1s 0.3s ease forwards;
+    opacity: 0;
+  }
+  .hero-intro-text strong {
+    font-weight: 600;
+    color: var(--rust);
+  }
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-bottom: 3rem;
+    animation: fadeUp 1s 0.5s ease forwards;
+    opacity: 0;
+  }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--gold);
+    display: block;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--ink);
+    color: var(--parchment);
+    padding: 1rem 2.5rem;
+    text-decoration: none;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    animation: fadeUp 1s 0.6s ease forwards;
+    opacity: 0;
+    align-self: flex-start;
+  }
+  .hero-cta::after {
+    content: '→';
+    transition: transform 0.3s;
+  }
+  .hero-cta:hover {
+    background: var(--gold);
+    color: var(--ink);
+  }
+  .hero-cta:hover::after { transform: translateX(5px); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SCROLL INDICATOR */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--muted);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    z-index: 10;
+    animation: fadeUp 1s 1s ease forwards;
+    opacity: 0;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollAnim 2s infinite;
+  }
+  @keyframes scrollAnim {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  /* GALLERY */
+  .gallery-section {
+    padding: 8rem 3rem;
+    background: var(--warm-white);
+  }
+  .section-header {
+    text-align: center;
+    margin-bottom: 5rem;
+  }
+  .section-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .section-title em { font-style: italic; color: var(--rust); }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .artwork-card {
+    position: relative;
+    cursor: none;
+    group: true;
+  }
+  .artwork-card:nth-child(2) { margin-top: 4rem; }
+  .artwork-card:nth-child(5) { margin-top: -3rem; }
+
+  .artwork-canvas {
+    width: 100%;
+    aspect-ratio: 3/4;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 8px 12px 40px rgba(0,0,0,0.12);
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.5s;
+  }
+  .artwork-card:hover .artwork-canvas {
+    transform: translateY(-8px);
+    box-shadow: 16px 24px 60px rgba(0,0,0,0.2);
+  }
+
+  /* Unique painting styles */
+  .painting-1 {
+    background: linear-gradient(160deg, #1a2535 0%, #2d4a6e 35%, #c4833a 65%, #8b1a0e 100%);
+  }
+  .painting-1::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 60% 40%, rgba(196,131,58,0.5) 0%, transparent 55%),
+                radial-gradient(ellipse at 20% 80%, rgba(45,74,110,0.6) 0%, transparent 40%);
+  }
+  .painting-2 {
+    background: linear-gradient(200deg, #f0e8d5 0%, #d4a853 25%, #8b5e2b 55%, #2d1a0e 100%);
+  }
+  .painting-2::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 45% 55%, rgba(212,168,83,0.4) 0%, transparent 50%);
+  }
+  .painting-3 {
+    background: linear-gradient(130deg, #0d1f0a 0%, #2d5a1e 30%, #6b8c3a 55%, #c4a83a 85%, #1a1205 100%);
+  }
+  .painting-3::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 70% 30%, rgba(196,168,58,0.5) 0%, transparent 45%);
+  }
+  .painting-4 {
+    background: linear-gradient(170deg, #3a1a35 0%, #6b2d5e 30%, #c4588a 55%, #f0a878 100%);
+  }
+  .painting-4::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 35% 65%, rgba(196,88,138,0.4) 0%, transparent 50%);
+  }
+  .painting-5 {
+    background: linear-gradient(150deg, #0a1a2d 0%, #1e3d6b 40%, #3a6b9e 65%, #8ab4d4 100%);
+  }
+  .painting-5::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, rgba(138,180,212,0.5) 0%, transparent 55%);
+  }
+  .painting-6 {
+    background: linear-gradient(140deg, #1f0a0a 0%, #5a1a0e 25%, #c43a1a 55%, #f0a83a 80%, #faf0d4 100%);
+  }
+  .painting-6::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 60% 50%, rgba(240,168,58,0.4) 0%, transparent 50%);
+  }
+
+  [class^="painting-"]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.015' numOctaves='6' result='t'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='t' scale='25' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)' opacity='0.3'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+    opacity: 0.5;
+  }
+
+  .artwork-info {
+    padding: 1.5rem 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .artwork-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--ink);
+    font-style: italic;
+  }
+  .artwork-details {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+    letter-spacing: 0.1em;
+  }
+  .artwork-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 300;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .artwork-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(26,20,16,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s;
+    backdrop-filter: blur(2px);
+  }
+  .artwork-card:hover .artwork-overlay { opacity: 1; }
+  .btn-buy {
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 0.9rem 2rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    background: transparent;
+    cursor: none;
+    transition: all 0.3s;
+    font-family: 'Heebo', sans-serif;
+    font-weight: 300;
+  }
+  .btn-buy:hover {
+    background: var(--gold);
+    color: var(--ink);
+  }
+
+  /* ABOUT SECTION */
+  .about-section {
+    padding: 8rem 0;
+    background: var(--ink);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+  .about-left {
+    padding: 5rem 5rem 5rem 7rem;
+    position: relative;
+  }
+  .about-left::before {
+    content: '"';
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 25rem;
+    color: rgba(184,145,58,0.07);
+    position: absolute;
+    top: -3rem;
+    right: -2rem;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .about-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 2rem;
+  }
+  .about-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    font-weight: 300;
+    color: var(--parchment);
+    line-height: 1.2;
+    margin-bottom: 2rem;
+  }
+  .about-title em { font-style: italic; color: var(--gold-light); }
+  .about-text {
+    font-size: 0.9rem;
+    line-height: 2;
+    color: rgba(245,240,232,0.6);
+    margin-bottom: 1.5rem;
+  }
+  .about-signature {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-style: italic;
+    color: var(--gold);
+    margin-top: 3rem;
+    font-weight: 300;
+  }
+
+  .about-right {
+    background: linear-gradient(160deg, #2d1a0e, #1a1410);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem;
+    position: relative;
+  }
+  .artist-portrait {
+    width: 320px;
+    height: 420px;
+    background: linear-gradient(160deg, #8b5e2b, #4a2d0e, #c47d3a);
+    position: relative;
+    transform: rotate(2deg);
+    box-shadow: -20px 30px 60px rgba(0,0,0,0.5);
+  }
+  .portrait-caption {
+    position: absolute;
+    bottom: -2rem;
+    right: -1rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    writing-mode: horizontal-tb;
+  }
+  .artist-portrait::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, rgba(200,150,80,0.3) 0%, transparent 60%);
+  }
+  .artist-label {
+    position: absolute;
+    bottom: -3rem;
+    left: 0;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  /* PROCESS SECTION */
+  .process-section {
+    padding: 8rem 3rem;
+    background: var(--parchment);
+    text-align: center;
+  }
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3rem;
+    max-width: 1000px;
+    margin: 4rem auto 0;
+  }
+  .process-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .process-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    font-weight: 300;
+    color: var(--gold);
+    opacity: 0.4;
+    line-height: 1;
+  }
+  .process-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  .process-text {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* CTA STRIP */
+  .cta-strip {
+    background: var(--gold);
+    padding: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+  }
+  .cta-strip-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.3rem, 2.5vw, 2rem);
+    font-weight: 300;
+    color: var(--ink);
+  }
+  .btn-cta-main {
+    background: var(--ink);
+    color: var(--gold);
+    padding: 1rem 3rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    border: none;
+    cursor: none;
+    font-family: 'Heebo', sans-serif;
+    font-weight: 300;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+  .btn-cta-main:hover {
+    background: var(--charcoal);
+  }
+
+  /* TESTIMONIALS */
+  .testimonials {
+    padding: 8rem 3rem;
+    background: var(--warm-white);
+  }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+    max-width: 1100px;
+    margin: 4rem auto 0;
+  }
+  .testimonial-card {
+    border-top: 1px solid var(--gold);
+    padding-top: 2rem;
+  }
+  .testimonial-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--charcoal);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+  .testimonial-author {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink);
+    padding: 4rem 3rem 2rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 4rem;
+  }
+  .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--parchment);
+    letter-spacing: 0.2em;
+    margin-bottom: 1rem;
+  }
+  .footer-sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 280px;
+  }
+  .footer-col h4 {
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+  .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .footer-links a {
+    font-size: 0.85rem;
+    color: rgba(245,240,232,0.5);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--gold); }
+  .footer-bottom {
+    grid-column: 1 / -1;
+    border-top: 1px solid rgba(245,240,232,0.1);
+    padding-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-copy {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .footer-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--gold);
+    opacity: 0.7;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26,20,16,0.85);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+    backdrop-filter: blur(8px);
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal {
+    background: var(--warm-white);
+    max-width: 480px;
+    width: 90%;
+    padding: 3rem;
+    position: relative;
+    transform: translateY(30px);
+    transition: transform 0.4s;
+  }
+  .modal-overlay.active .modal { transform: translateY(0); }
+  .modal-close {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--muted);
+    cursor: none;
+  }
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+  .modal-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    margin-bottom: 2rem;
+  }
+  .modal-field {
+    width: 100%;
+    border: 1px solid rgba(26,20,16,0.15);
+    padding: 0.9rem 1rem;
+    font-family: 'Heebo', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: var(--ink);
+    background: transparent;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s;
+    direction: rtl;
+  }
+  .modal-field:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+  .modal-submit {
+    width: 100%;
+    background: var(--ink);
+    color: var(--gold);
+    border: none;
+    padding: 1rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-family: 'Heebo', sans-serif;
+    cursor: none;
+    transition: background 0.3s;
+  }
+  .modal-submit:hover { background: var(--gold); color: var(--ink); }
+  .modal-note {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 1rem;
+    line-height: 1.6;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-left { min-height: 60vh; }
+    .hero-right { padding: 4rem 2rem; }
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    .artwork-card:nth-child(2) { margin-top: 0; }
+    .artwork-card:nth-child(5) { margin-top: 0; }
+    .about-section { grid-template-columns: 1fr; }
+    .about-right { display: none; }
+    .about-left { padding: 4rem 2rem; }
+    .process-grid { grid-template-columns: repeat(2, 1fr); }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    footer { grid-template-columns: 1fr; gap: 2rem; }
+    nav { padding: 1.5rem 1.5rem; }
+    .nav-links { gap: 1.5rem; }
+    .cta-strip { flex-direction: column; text-align: center; }
+  }
+  @media (max-width: 600px) {
+    .gallery-grid { grid-template-columns: 1fr; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-logo">Mason Nouai</div>
+  <ul class="nav-links">
+    <li><a href="#gallery">גלריה</a></li>
+    <li><a href="#about">האמן</a></li>
+    <li><a href="#process">תהליך</a></li>
+    <li><a href="#contact">צור קשר</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-canvas-preview">
+      <div class="canvas-art">
+        <div class="canvas-art-inner"></div>
+        <div class="canvas-frame"></div>
+      </div>
+    </div>
+    <div class="hero-text">
+      <span class="hero-label">אמן מקיו — ציורי קנבס מקוריים</span>
+      <h1 class="hero-name">
+        Mason<br>
+        <em>Nouai</em>
+      </h1>
+      <p class="hero-tagline">אמנות שצמחה מתוך שלווה. כל ציור — סיפור שחי על הקנבס.</p>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <p class="hero-intro-text">
+      אמן מקיו שבחר לפתוח את עולמו לכולם.<br>
+      ציורים מקוריים על קנבס <strong>במחירים נגישים</strong> — כי אמנות אמיתית מגיעה לכל בית.
+    </p>
+    <div class="hero-stats">
+      <div>
+        <span class="stat-num">60+</span>
+        <span class="stat-label">ציורים מקוריים</span>
+      </div>
+      <div>
+        <span class="stat-num">12</span>
+        <span class="stat-label">שנות יצירה</span>
+      </div>
+      <div>
+        <span class="stat-num">100%</span>
+        <span class="stat-label">עבודת יד</span>
+      </div>
+    </div>
+    <a href="#gallery" class="hero-cta">לגלריה המלאה</a>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>גלול</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- Gallery -->
+<section class="gallery-section" id="gallery">
+  <div class="section-header">
+    <span class="section-eyebrow">הגלריה</span>
+    <h2 class="section-title">כל ציור — <em>יקום בפני עצמו</em></h2>
+  </div>
+
+  <div class="gallery-grid">
+    <div class="artwork-card">
+      <div class="artwork-canvas painting-1">
+        <div class="artwork-overlay">
+          <button class="btn-buy" onclick="openModal('שקיעה על הים הפתוח', '₪890')">לרכישה</button>
+        </div>
+      </div>
+      <div class="artwork-info">
+        <div>
+          <div class="artwork-title">שקיעה על הים הפתוח</div>
+          <div class="artwork-details">אקרילי על קנבס — 60×80 ס"מ</div>
+        </div>
+        <div class="artwork-price">₪890</div>
+      </div>
+    </div>
+
+    <div class="artwork-card">
+      <div class="artwork-canvas painting-2">
+        <div class="artwork-overlay">
+          <button class="btn-buy" onclick="openModal('אור ראשון', '₪740')">לרכישה</button>
+        </div>
+      </div>
+      <div class="artwork-info">
+        <div>
+          <div class="artwork-title">אור ראשון</div>
+          <div class="artwork-details">שמן על קנבס — 50×70 ס"מ</div>
+        </div>
+        <div class="artwork-price">₪740</div>
+      </div>
+    </div>
+
+    <div class="artwork-card">
+      <div class="artwork-canvas painting-3">
+        <div class="artwork-overlay">
+          <button class="btn-buy" onclick="openModal('יער הקסם', '₪1,100')">לרכישה</button>
+        </div>
+      </div>
+      <div class="artwork-info">
+        <div>
+          <div class="artwork-title">יער הקסם</div>
+          <div class="artwork-details">אקרילי על קנבס — 70×90 ס"מ</div>
+        </div>
+        <div class="artwork-price">₪1,100</div>
+      </div>
+    </div>
+
+    <div class="artwork-card">
+      <div class="artwork-canvas painting-4">
+        <div class="artwork-overlay">
+          <button class="btn-buy" onclick="openModal('חלום ורוד', '₪680')">לרכישה</button>
+        </div>
+      </div>
+      <div class="artwork-info">
+        <div>
+          <div class="artwork-title">חלום ורוד</div>
+          <div class="artwork-details">אקרילי על קנבס — 40×60 ס"מ</div>
+        </div>
+        <div class="artwork-price">₪680</div>
+      </div>
+    </div>
+
+    <div class="artwork-card">
+      <div class="artwork-canvas painting-5">
+        <div class="artwork-overlay">
+          <button class="btn-buy" onclick="openModal('לילה כחול', '₪950')">לרכישה</button>
+        </div>
+      </div>
+      <div class="artwork-info">
+        <div>
+          <div class="artwork-title">לילה כחול</div>
+          <div class="artwork-details">שמן על קנבס — 60×80 ס"מ</div>
+        </div>
+        <div class="artwork-price">₪950</div>
+      </div>
+    </div>
+
+    <div class="artwork-card">
+      <div class="artwork-canvas painting-6">
+        <div class="artwork-overlay">
+          <button class="btn-buy" onclick="openModal('אש ואהבה', '₪820')">לרכישה</button>
+        </div>
+      </div>
+      <div class="artwork-info">
+        <div>
+          <div class="artwork-title">אש ואהבה</div>
+          <div class="artwork-details">אקרילי על קנבס — 50×70 ס"מ</div>
+        </div>
+        <div class="artwork-price">₪820</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section class="about-section" id="about">
+  <div class="about-left">
+    <span class="about-eyebrow">האמן</span>
+    <h2 class="about-title">
+      <em>מייסון נואי</em><br>
+      מציור פרטי<br>לקנבס שלך
+    </h2>
+    <p class="about-text">
+      מייסון נואי הוא אמן מקיו שגדל בין נוף ים התיכון לשדות הצבע. במשך שנים יצר בשביל עצמו — ציורים שמילאו את ביתו, מחברות ה-sketch שלו, את הדמיון שלו.
+    </p>
+    <p class="about-text">
+      יום אחד החליט שהעולם הזה מגיע לכולם. לא לגלריות יוקרה בלבד. לכל בית, לכל קיר, לכל מי שמחפש משהו אמיתי.
+    </p>
+    <p class="about-text">
+      כל ציור נוצר ביד, בסבלנות, עם חומרים איכותיים — ובמחיר שמאפשר לך להביא אמנות אמיתית הביתה.
+    </p>
+    <div class="about-signature">Mason Nouai</div>
+  </div>
+  <div class="about-right">
+    <div style="position: relative;">
+      <div class="artist-portrait"></div>
+      <div class="artist-label">מייסון נואי — מקיו, 2024</div>
+    </div>
+  </div>
+</section>
+
+<!-- Process -->
+<section class="process-section" id="process">
+  <span class="section-eyebrow">איך זה עובד</span>
+  <h2 class="section-title">מהגלריה <em>לסלון שלך</em></h2>
+  <div class="process-grid">
+    <div class="process-item">
+      <div class="process-num">01</div>
+      <div class="process-title">בחר ציור</div>
+      <p class="process-text">עיין בגלריה ובחר את הציור שדיבר אליך</p>
+    </div>
+    <div class="process-item">
+      <div class="process-num">02</div>
+      <div class="process-title">שלח פרטים</div>
+      <p class="process-text">מלא את הטופס עם שמך וכתובת האימייל לאישור</p>
+    </div>
+    <div class="process-item">
+      <div class="process-num">03</div>
+      <div class="process-title">תשלום מאובטח</div>
+      <p class="process-text">קישור תשלום נשלח אליך מייד עם אישור הבקשה</p>
+    </div>
+    <div class="process-item">
+      <div class="process-num">04</div>
+      <div class="process-title">משלוח עד הבית</div>
+      <p class="process-text">הציור מגיע אליך ארוז בטוח תוך 7–10 ימי עסקים</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Strip -->
+<div class="cta-strip" id="contact">
+  <div class="cta-strip-text">
+    רוצה ציור בהתאמה אישית?<br>
+    <small style="font-size: 0.9rem; opacity: 0.7;">מייסון מקבל הזמנות מיוחדות</small>
+  </div>
+  <button class="btn-cta-main" onclick="openModal('הזמנה אישית', 'מחיר לפי שיחה')">
+    צור קשר עכשיו
+  </button>
+</div>
+
+<!-- Testimonials -->
+<section class="testimonials">
+  <div class="section-header">
+    <span class="section-eyebrow">לקוחות מספרים</span>
+    <h2 class="section-title">אמנות <em>שחיה</em> בבתים</h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <p class="testimonial-text">"הציור הגיע ארוז להפליא ויפה אפילו יותר ממה שציפיתי. עכשיו הוא מרכז הסלון שלי."</p>
+      <div class="testimonial-author">— נועה כ., תל אביב</div>
+    </div>
+    <div class="testimonial-card">
+      <p class="testimonial-text">"סוף סוף אמן שמוכר ביד ראשונה ובמחיר הגיוני. הקנייה הייתה פשוטה ומהירה."</p>
+      <div class="testimonial-author">— יואב ש., חיפה</div>
+    </div>
+    <div class="testimonial-card">
+      <p class="testimonial-text">"הזמנתי ציור מיוחד למתנה. מייסון היה קשוב, מקצועי, והתוצאה הייתה מדהימה."</p>
+      <div class="testimonial-author">— מיכל ב., ירושלים</div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div>
+    <div class="footer-brand">Mason Nouai</div>
+    <p class="footer-sub">ציורי קנבס מקוריים מהאמן ישירות אליך. אמנות אמיתית, מחיר נגיש, לב שלם.</p>
+  </div>
+  <div class="footer-col">
+    <h4>ניווט</h4>
+    <ul class="footer-links">
+      <li><a href="#gallery">גלריה</a></li>
+      <li><a href="#about">האמן</a></li>
+      <li><a href="#process">תהליך</a></li>
+      <li><a href="#contact">צור קשר</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <h4>צור קשר</h4>
+    <ul class="footer-links">
+      <li><a href="#">mason@nouai.art</a></li>
+      <li><a href="#">Instagram</a></li>
+      <li><a href="#">WhatsApp</a></li>
+    </ul>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 Mason Nouai — כל הזכויות שמורות</div>
+    <div class="footer-tagline">Art from the heart of Maqio</div>
+  </div>
+</footer>
+
+<!-- Purchase Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modalTitle">שקיעה על הים הפתוח</div>
+    <div class="modal-price" id="modalPrice">₪890</div>
+    <input type="text" class="modal-field" placeholder="שם מלא" id="modalName">
+    <input type="email" class="modal-field" placeholder="כתובת אימייל" id="modalEmail">
+    <input type="tel" class="modal-field" placeholder="טלפון (אופציונלי)" id="modalPhone">
+    <textarea class="modal-field" placeholder="הערות או בקשות מיוחדות" id="modalNote" rows="3" style="resize:none;"></textarea>
+    <button class="modal-submit" onclick="submitOrder()">שליחת בקשת רכישה</button>
+    <p class="modal-note">לאחר הגשת הבקשה תקבל/י קישור תשלום מאובטח תוך 24 שעות</p>
+  </div>
+</div>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0;
+  let ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    cursor.style.left = mouseX + 'px';
+    cursor.style.top = mouseY + 'px';
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    cursorRing.style.left = ringX + 'px';
+    cursorRing.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'translate(-50%, -50%) scale(2)';
+      cursorRing.style.opacity = '0.2';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+      cursorRing.style.opacity = '0.6';
+    });
+  });
+
+  // Modal
+  function openModal(title, price) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalPrice').textContent = price;
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+  function closeModalOnBg(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+  function submitOrder() {
+    const name = document.getElementById('modalName').value.trim();
+    const email = document.getElementById('modalEmail').value.trim();
+    if (!name || !email) {
+      alert('אנא מלא שם ואימייל');
+      return;
+    }
+    const title = document.getElementById('modalTitle').textContent;
+    const price = document.getElementById('modalPrice').textContent;
+    alert(`תודה ${name}!\n\nבקשת הרכישה עבור "${title}" (${price}) התקבלה.\nקישור לתשלום יישלח לכתובת ${email} תוך 24 שעות.`);
+    closeModal();
+  }
+
+  // Scroll animations
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.artwork-card, .process-item, .testimonial-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(40px)';
+    el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
